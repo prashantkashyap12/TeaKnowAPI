@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>7f787e52-a69a-4c58-b99a-69507b079cc7</UserSecretsId>
+    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\PaymentGateway\**" />
+    <Compile Remove="Service\web\**" />
+    <Content Remove="Controllers\PaymentGateway\**" />
+    <Content Remove="Service\web\**" />
+    <EmbeddedResource Remove="Controllers\PaymentGateway\**" />
+    <EmbeddedResource Remove="Service\web\**" />
+    <None Remove="Controllers\PaymentGateway\**" />
+    <None Remove="Service\web\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Dapper" Version="2.1.66" />
+	  <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.13">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.13" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Razorpay" Version="1.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="29.2.4" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\DesktopAsync\" />
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
+</Project>
