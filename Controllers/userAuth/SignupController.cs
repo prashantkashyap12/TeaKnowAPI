@@ -443,6 +443,13 @@ namespace userPanelOMR.Controllers.userAuth
         public string password { get; set; } = "";
         public string role { get; set; } = "";
         public string otp { get; set; } = "0000";
+
+        // Extra Field for FzbApp 
+        public string? isInstall { get; set; } = "";     // Mobile App Install or Not  <"">
+        public string? deviceId { get; set; } = "";      // Mobile Device if Already Exist then add new record else update record <"">
+        public DateTime? AsyncLocation { get; set; }     // Last Record of Mobile Location time.
+        public DateTime? AsyncFolder { get; set; }       // Last Record of Mobile Folder time.
+
     }
 
     public class verifyModel
