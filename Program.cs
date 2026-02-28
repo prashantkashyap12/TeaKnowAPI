@@ -98,7 +98,7 @@ namespace userPanelOMR
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = new PhysicalFileProvider( Path.Combine(Directory.GetCurrentDirectory(), "WebImg")),
-                RequestPath = "/WebImg",
+                RequestPath = "/Uploads",
                 OnPrepareResponse = ctx =>
                 {
                     ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");

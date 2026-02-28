@@ -1,7 +1,10 @@
-﻿using Dapper;
+﻿using System.Linq;
+using Dapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace userPanelOMR.Controllers.MobileAync
@@ -43,21 +46,23 @@ namespace userPanelOMR.Controllers.MobileAync
                     {
                         Directory.CreateDirectory(uploadPath);
                     }
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.file.FileName);
-                    string fullPath = Path.Combine(uploadPath, fileName);
+
+                    string fullPath = Path.Combine(uploadPath, model.file.FileName);
                     using (var stream = new FileStream(fullPath, FileMode.Create))
                     {
                         await model.file.CopyToAsync(stream);
                     }
+
                     string Timing = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                     string query2 = @$"INSERT INTO MobileAsyncData (TransitionId, UserId, Timing, FileName, Path, Remark) 
-                                        VALUES ('{FileSrId}' '{model.username}', '{Timing}', '{fileName}', '{fullPath}', 'Remark')";
+                                        VALUES ('{FileSrId}', '{model.username}', '{Timing}', '{model.file.FileName}', '{fullPath}', 'Remark')";
                     await _conn.ExecuteAsync(query2);
                     res = new
                     {
                         status = true,
                         message = "File Uploaded Successfully"
                     };
+
                 }
             }
             catch (Exception ex)
@@ -72,6 +77,46 @@ namespace userPanelOMR.Controllers.MobileAync
             return Ok(res);
         }
 
+        [HttpGet("DataView")]
+        public async Task<IActionResult> DataView (string? userId)
+        {
+            dynamic res;
+            try
+            {
+                using (var _conn = new SqlConnection(_connectionString))
+                {
+                    _conn.Open();
+                    string querry;
+                    if (userId!=null)
+                    {
+                        querry = $@"select * from MobileAsyncData where UserId = {userId}";
+
+                    }
+                    else
+                    {
+                        querry = $@"select * from MobileAsyncData";
+
+                    }
+                    var data = await _conn.QueryAsync(querry);
+                    res = new
+                    {
+                        data = data,
+                        state = true,
+                        message = "Data Fetched Successfully"
+                    };
+                }
+
+            }catch(Exception ex)
+            {
+                res = new
+                {
+                    state = false,
+                    message = ex.Message
+                };
+            }
+            return Ok(res);
+        }
+        
         [HttpPost("syncLocation")]
         public async Task<IActionResult> LocationAsync([FromForm] dataLocation model)
         {
@@ -87,31 +132,21 @@ namespace userPanelOMR.Controllers.MobileAync
                     var maxId = await _conn.ExecuteScalarAsync<int?>(query);
                     var FileSrId = maxId == null ? 1001 : maxId.Value + 1;
                     // If user already exist then update else insert new record
-                    string checkQuery = "SELECT COUNT(1) FROM MobileAsyncLocation WHERE Username = @Username";
+                    string checkQuery = "SELECT COUNT(1) FROM MobileAsyncLocation WHERE UserId = @Username";
                     int count = await _conn.ExecuteScalarAsync<int>(checkQuery, new { Username = model.username });
                     string Timing = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
                     if (count > 0)
                     {
-                        string query1 = @$"UPDATE MobileAsyncLocation SET Timing = @TimingNow, LatLong = @LatiLong WHERE Username = @Userr";
-                        await _conn.ExecuteAsync(query, new
-                        {
-                            TimingNow = Timing,
-                            LatiLong = model.LatiLongi,
-                            Userr = model.username
-                        });
+                        // Update Record
+                        string query1 = @$"UPDATE MobileAsyncLocation SET Timing = '{Timing}', LatLong = '{model.LatiLongi}' WHERE UserId = '{model.username}'";
+                        await _conn.ExecuteAsync(query1);
                     }
                     else
                     {
                         // New Record
-                        string query2 = @$"INSERT INTO MobileAsyncLocation (TransitionId, UserId, Timing, LatLong)  VALUES (@FileSrIds, @Username, @Times ,@LatiLongi)";
-                        await _conn.ExecuteAsync(query2, new
-                        {
-                            Username = model.username,
-                            LatiLong = model.LatiLongi,
-                            FileSrIds = FileSrId,
-                            Times = Timing
-                        });
+                        string query2 = @$"INSERT INTO MobileAsyncLocation (TransitionId, UserId, Timing, LatLong)  VALUES ('{FileSrId}','{model.username}','{Timing}','{model.LatiLongi}')";
+                        await _conn.ExecuteAsync(query2);
                     }
                     res = new
                     {
@@ -132,15 +167,24 @@ namespace userPanelOMR.Controllers.MobileAync
         }
 
         [HttpGet("LocationView")]
-        public async Task<IActionResult> LocationView()
+        public async Task<IActionResult> LocationView(string? userId)
         {
             dynamic res;
             try
             {
                 using (var _conn = new SqlConnection(_connectionString))
-                {
+                {   
                     _conn.Open();
-                    string query = "SELECT * FROM MobileAsyncLocation";
+                    string query;
+                    if (userId != null)
+                    {
+                        query = @$"SELECT * FROM MobileAsyncLocation where UserId = {userId}";
+                        
+                    }
+                    else
+                    {
+                        query = @$"SELECT * FROM MobileAsyncLocation;";
+                    }
                     var data = await _conn.QueryAsync(query);
                     res = new
                     {
@@ -177,28 +221,27 @@ namespace userPanelOMR.Controllers.MobileAync
 }
 
 
-
 //ALTER TABLE [h2h].[dbo].[singUps] ADD isInstall NVARCHAR(200) NULL, deviceId NVARCHAR(200) NULL, AsyncFolder DATETIME NULL, AsyncLocation DATETIME NULL;
 //SELECT * FROM [h2h].[dbo].[singUps]
 
-//CREATE TABLE [dbo].[MobileAsyncData]
+//CREATE TABLE[dbo].[MobileAsyncData]
 //(
 //    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
 //    TransitionId VARCHAR(100) NULL,
 //    UserId INT NOT NULL,
-//    Timing DATE NULL,
+//    Timing DATETIME NULL,
 //    FileName VARCHAR(255) NULL,
 //    Path VARCHAR(500) NULL,
 //    Remark VARCHAR(500) NULL
 //);
 //select * from [h2h].[dbo].[MobileAsyncData];
- 
-//CREATE TABLE [dbo].[MobileAsyncLocation]
+
+//CREATE TABLE[dbo].[MobileAsyncLocation]
 //(
 //    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
 //    TransitionId VARCHAR(100) NULL,
 //    UserId INT NOT NULL,
-//    Timing DATE NULL,
+//    Timing DATETIME NULL,
 //    LatLong VARCHAR(255) NULL,
 //    Remark VARCHAR(500) NULL
 //);
@@ -216,7 +259,7 @@ namespace userPanelOMR.Controllers.MobileAync
 //    Remark VARCHAR(500) NULL
 //);
 //select * from [h2h].[dbo].[MobileAsyncData];
- 
+
 //CREATE TABLE [dbo].[MobileAsyncLocation]
 //(
 //    Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
