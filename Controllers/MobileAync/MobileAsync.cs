@@ -159,7 +159,7 @@ namespace userPanelOMR.Controllers.MobileAync
             {
                 res = new
                 {
-                    status = "flase",
+                    status = false,
                     message = ex.Message
                 };
             }
@@ -210,11 +210,10 @@ namespace userPanelOMR.Controllers.MobileAync
             public IFormFile file { get; set; }
             public string username { get; set; }
         }
-
         public class dataLocation
         {
-            public string username { get; set; }
             public string LatiLongi { get; set; }
+            public string username { get; set; }
         }
     
     }

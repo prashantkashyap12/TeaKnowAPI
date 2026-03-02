@@ -49,15 +49,21 @@ namespace userPanelOMR
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAnyOrigin",
-                policy =>
+                options.AddPolicy("AllowAnyOrigin", builder =>
                 {
-                    policy
-                    .WithOrigins("http://localhost:65236", "http://admin.helpinghandsanstha.in")
-                    .AllowAnyOrigin()   // agr ko sepecific path hai front end ka to de do other wise all allow path. <un-secure>
-                    .AllowAnyHeader()   // Front end se kisi bhi type k "Header" ko allow kar do.
-                    .AllowAnyMethod();  // Front end se kisi bhi type k "Mathord" ko allow kar do.
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
                 });
+                //options.AddPolicy("AllowAnyOrigin",
+                //policy =>
+                //{
+                //    policy
+                //    .WithOrigins("http://localhost:5181", "http://admin.helpinghandsanstha.in")
+                //    .AllowAnyOrigin()   // agr ko sepecific path hai front end ka to de do other wise all allow path. <un-secure>
+                //    .AllowAnyHeader()   // Front end se kisi bhi type k "Header" ko allow kar do.
+                //    .AllowAnyMethod();  // Front end se kisi bhi type k "Mathord" ko allow kar do.
+                //});
             });
 
             // Build Project
