@@ -52,10 +52,12 @@ namespace userPanelOMR.Controllers.MobileAync
                     {
                         await model.file.CopyToAsync(stream);
                     }
+                    string updatePath = Path.Combine("Uploads", model.username, model.file.FileName);
+                    Console.WriteLine(updatePath);
 
                     string Timing = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                     string query2 = @$"INSERT INTO MobileAsyncData (TransitionId, UserId, Timing, FileName, Path, Remark) 
-                                        VALUES ('{FileSrId}', '{model.username}', '{Timing}', '{model.file.FileName}', '{fullPath}', 'Remark')";
+                                        VALUES ('{FileSrId}', '{model.username}', '{Timing}', '{model.file.FileName}', '{updatePath}', 'Remark')";
                     await _conn.ExecuteAsync(query2);
                     res = new
                     {

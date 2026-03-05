@@ -100,16 +100,26 @@ namespace userPanelOMR
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NCaF5cXmZCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWXhdcHRVQmVeV0F3Wks=\r\n");
 
 
-            // Permission Folder
+            builder.Services.AddDirectoryBrowser();
             app.UseStaticFiles(new StaticFileOptions
             {
-                FileProvider = new PhysicalFileProvider( Path.Combine(Directory.GetCurrentDirectory(), "WebImg")),
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
                 RequestPath = "/Uploads",
                 OnPrepareResponse = ctx =>
                 {
                     ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
                 }
             });
+
+
+            app.UseDirectoryBrowser(new DirectoryBrowserOptions
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
+                RequestPath = "/Uploads"
+            });
+
+
+
 
             app.UseWebSockets();
             app.Use(async (context, next) =>
